@@ -57,7 +57,11 @@ func serverStaticRouter(ctx *context.Context) {
 	if fileInfo.IsDir() {
 		requestURL := ctx.Input.URL()
 		if requestURL[len(requestURL)-1] != '/' {
-			ctx.Redirect(302, requestURL+"/")
+			redirectURL := requestURL + "/"
+			if ctx.Request.URL.RawQuery != "" {
+				redirectURL = redirectURL + "?" + ctx.Request.URL.RawQuery
+			}
+			ctx.Redirect(302, redirectURL)
 		} else {
 			//serveFile will list dir
 			http.ServeFile(ctx.ResponseWriter, ctx.Request, filePath)
@@ -163,13 +167,10 @@ func searchFile(ctx *context.Context) (string, os.FileInfo, error) {
 				return filePath, fi, nil
 			}
 		}
-		return "", nil, errors.New(requestPath + " file not find")
+		return "", nil, errNotStaticRequest
 	}
 
 	for prefix, staticDir := range BConfig.WebConfig.StaticDir {
-		if len(prefix) == 0 {
-			continue
-		}
 		if !strings.Contains(requestPath, prefix) {
 			continue
 		}

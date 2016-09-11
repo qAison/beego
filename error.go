@@ -93,7 +93,11 @@ func showErr(err interface{}, ctx *context.Context, stack string) {
 		"BeegoVersion":  VERSION,
 		"GoVersion":     runtime.Version(),
 	}
-	ctx.ResponseWriter.WriteHeader(500)
+	if ctx.Output.Status != 0 {
+		ctx.ResponseWriter.WriteHeader(ctx.Output.Status)
+	} else {
+		ctx.ResponseWriter.WriteHeader(500)
+	}
 	t.Execute(ctx.ResponseWriter, data)
 }
 
@@ -378,6 +382,11 @@ func ErrorController(c ControllerInterface) *App {
 		}
 	}
 	return BeeApp
+}
+
+// Exception Write HttpStatus with errCode and Exec error handler if exist.
+func Exception(errCode uint64, ctx *context.Context) {
+	exception(strconv.FormatUint(errCode, 10), ctx)
 }
 
 // show error string as simple text message.
