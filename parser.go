@@ -27,7 +27,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/utils"
 )
 
@@ -60,7 +59,7 @@ func parserPkg(pkgRealpath, pkgpath string) error {
 	commentFilename, _ = filepath.Rel(AppPath, pkgRealpath)
 	commentFilename = coomentPrefix + rep.Replace(commentFilename) + ".go"
 	if !compareFile(pkgRealpath) {
-		logs.Info(pkgRealpath + " no changed")
+		BeeLogger.Info(pkgRealpath + " no changed")
 		return nil
 	}
 	genInfoList = make(map[string][]ControllerComments)
@@ -133,7 +132,7 @@ func parserComments(comments *ast.CommentGroup, funcName, controllerName, pkgpat
 
 func genRouterCode(pkgRealpath string) {
 	os.Mkdir(getRouterDir(pkgRealpath), 0755)
-	logs.Info("generate router from comments")
+	BeeLogger.Info("generate router from comments")
 	var (
 		globalinfo string
 		sortKey    []string

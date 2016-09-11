@@ -28,7 +28,7 @@ import (
 	"time"
 
 	beecontext "github.com/astaxie/beego/context"
-	"github.com/astaxie/beego/logs"
+
 	"github.com/astaxie/beego/toolbox"
 	"github.com/astaxie/beego/utils"
 )
@@ -447,11 +447,11 @@ func (p *ControllerRegister) insertFilterRouter(pos int, mr *FilterRouter) (err 
 func (p *ControllerRegister) URLFor(endpoint string, values ...interface{}) string {
 	paths := strings.Split(endpoint, ".")
 	if len(paths) <= 1 {
-		logs.Warn("urlfor endpoint must like path.controller.method")
+		BeeLogger.Warn("urlfor endpoint must like path.controller.method")
 		return ""
 	}
 	if len(values)%2 != 0 {
-		logs.Warn("urlfor params must key-value pair")
+		BeeLogger.Warn("urlfor params must key-value pair")
 		return ""
 	}
 	params := make(map[string]string)
@@ -670,7 +670,7 @@ func (p *ControllerRegister) ServeHTTP(rw http.ResponseWriter, r *http.Request) 
 		var err error
 		context.Input.CruSession, err = GlobalSessions.SessionStart(rw, r)
 		if err != nil {
-			logs.Error(err)
+			BeeLogger.Error("%v", err)
 			exception("503", context)
 			goto Admin
 		}
@@ -790,7 +790,7 @@ func (p *ControllerRegister) ServeHTTP(rw http.ResponseWriter, r *http.Request) 
 			if !context.ResponseWriter.Started && context.Output.Status == 0 {
 				if BConfig.WebConfig.AutoRender {
 					if err := execController.Render(); err != nil {
-						logs.Error(err)
+						BeeLogger.Error("%v", err)
 					}
 				}
 			}
@@ -831,29 +831,22 @@ Admin:
 			statusCode = 200
 		}
 
-		iswin := (runtime.GOOS == "windows")
-		statusColor := logs.ColorByStatus(iswin, statusCode)
-		methodColor := logs.ColorByMethod(iswin, r.Method)
-		resetColor := logs.ColorByMethod(iswin, "")
+		rip := utils.GetRequestIP(r)
 
 		if findRouter {
 			if routerInfo != nil {
-				devInfo = fmt.Sprintf("|%s %3d %s|%13s|%8s|%s %s %-7s %-3s   r:%s", statusColor, statusCode,
-					resetColor, timeDur.String(), "match", methodColor, resetColor, r.Method, r.URL.Path,
-					routerInfo.pattern)
+				devInfo = fmt.Sprintf("| %15s | %3d | %13s | %8s | %-7s %-3s | r:%s", rip, statusCode,
+					timeDur.String(), "match", r.Method, r.URL.Path, routerInfo.pattern)
 			} else {
-				devInfo = fmt.Sprintf("|%s %3d %s|%13s|%8s|%s %s %-7s %-3s", statusColor, statusCode, resetColor,
-					timeDur.String(), "match", methodColor, resetColor, r.Method, r.URL.Path)
+				devInfo = fmt.Sprintf("| %15s | %3d | %13s | %8s | %-7s %-3s", rip, statusCode,
+					timeDur.String(), "match", r.Method, r.URL.Path)
 			}
 		} else {
-			devInfo = fmt.Sprintf("|%s %3d %s|%13s|%8s|%s %s %-7s %-3s", statusColor, statusCode, resetColor,
-				timeDur.String(), "nomatch", methodColor, resetColor, r.Method, r.URL.Path)
+			devInfo = fmt.Sprintf("| %15s | %3d | %13s | %8s | %-7s %-3s", rip, statusCode,
+				timeDur.String(), "nomatch", r.Method, r.URL.Path)
 		}
-		if iswin {
-			logs.W32Debug(devInfo)
-		} else {
-			logs.Debug(devInfo)
-		}
+
+		BeeLogger.Debug(devInfo)
 	}
 
 	// Call WriteHeader if status code has been set changed
@@ -893,14 +886,14 @@ func (p *ControllerRegister) recoverPanic(context *beecontext.Context) {
 			}
 		}
 		var stack string
-		logs.Critical("the request url is ", context.Input.URL())
-		logs.Critical("Handler crashed with error", err)
+		BeeLogger.Critical("the request url is ", context.Input.URL())
+		BeeLogger.Critical("Handler crashed with error", err)
 		for i := 1; ; i++ {
 			_, file, line, ok := runtime.Caller(i)
 			if !ok {
 				break
 			}
-			logs.Critical(fmt.Sprintf("%s:%d", file, line))
+			BeeLogger.Critical(fmt.Sprintf("%s:%d", file, line))
 			stack = stack + fmt.Sprintln(fmt.Sprintf("%s:%d", file, line))
 		}
 		if BConfig.RunMode == DEV {

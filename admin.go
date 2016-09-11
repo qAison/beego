@@ -26,7 +26,6 @@ import (
 	"reflect"
 
 	"github.com/astaxie/beego/grace"
-	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/toolbox"
 	"github.com/astaxie/beego/utils"
 )
@@ -387,7 +386,7 @@ func (admin *adminApp) Run() {
 	for p, f := range admin.routers {
 		http.Handle(p, f)
 	}
-	logs.Info("Admin server Running on %s", addr)
+	BeeLogger.Info("Admin server Running on %s", addr)
 
 	var err error
 	if BConfig.Listen.Graceful {
@@ -396,6 +395,6 @@ func (admin *adminApp) Run() {
 		err = http.ListenAndServe(addr, nil)
 	}
 	if err != nil {
-		logs.Critical("Admin ListenAndServe: ", err, fmt.Sprintf("%d", os.Getpid()))
+		BeeLogger.Critical("Admin ListenAndServe: ", err, fmt.Sprintf("%d", os.Getpid()))
 	}
 }

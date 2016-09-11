@@ -26,7 +26,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/utils"
 )
 
@@ -57,7 +56,7 @@ func ExecuteTemplate(wr io.Writer, name string, data interface{}) error {
 			err = t.Execute(wr, data)
 		}
 		if err != nil {
-			logs.Trace("template Execute err:", err)
+			BeeLogger.Trace("template Execute err:%v", err)
 		}
 		return err
 	}
@@ -184,7 +183,7 @@ func BuildTemplate(dir string, files ...string) error {
 					t, err = getTemplate(self.root, file, v...)
 				}
 				if err != nil {
-					logs.Trace("parse template err:", file, err)
+					BeeLogger.Trace("parse template(%v) err:%v", file, err)
 				} else {
 					beeTemplates[file] = t
 				}
@@ -262,7 +261,7 @@ func _getTemplate(t0 *template.Template, root string, subMods [][]string, others
 					var subMods1 [][]string
 					t, subMods1, err = getTplDeep(root, otherFile, "", t)
 					if err != nil {
-						logs.Trace("template parse file err:", err)
+						BeeLogger.Trace("template parse file err:%v", err)
 					} else if subMods1 != nil && len(subMods1) > 0 {
 						t, err = _getTemplate(t, root, subMods1, others...)
 					}
@@ -283,7 +282,7 @@ func _getTemplate(t0 *template.Template, root string, subMods [][]string, others
 						var subMods1 [][]string
 						t, subMods1, err = getTplDeep(root, otherFile, "", t)
 						if err != nil {
-							logs.Trace("template parse file err:", err)
+							BeeLogger.Trace("template parse file err:%v", err)
 						} else if subMods1 != nil && len(subMods1) > 0 {
 							t, err = _getTemplate(t, root, subMods1, others...)
 						}

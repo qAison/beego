@@ -22,9 +22,13 @@ import (
 	"strings"
 
 	"github.com/astaxie/beego/config"
-	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/session"
 	"github.com/astaxie/beego/utils"
+)
+
+const (
+	CFG_DIR  = "conf"
+	CFG_FILE = "app.conf"
 )
 
 // Config is the main struct for BConfig
@@ -129,9 +133,9 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	appConfigPath = filepath.Join(workPath, "conf", "app.conf")
+	appConfigPath = filepath.Join(workPath, CFG_DIR, CFG_FILE)
 	if !utils.FileExists(appConfigPath) {
-		appConfigPath = filepath.Join(AppPath, "conf", "app.conf")
+		appConfigPath = filepath.Join(AppPath, CFG_DIR, CFG_FILE)
 		if !utils.FileExists(appConfigPath) {
 			AppConfig = &beegoAppConfig{innerConfig: config.NewFakeConfig()}
 			return
@@ -270,14 +274,14 @@ func assignConfig(ac config.Configer) error {
 	}
 
 	//init log
-	logs.Reset()
+	BeeLogger.Reset()
 	for adaptor, config := range BConfig.Log.Outputs {
-		err := logs.SetLogger(adaptor, config)
+		err := BeeLogger.SetLogger(adaptor, config)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, fmt.Sprintf("%s with the config %q got err:%s", adaptor, config, err.Error()))
 		}
 	}
-	logs.SetLogFuncCall(BConfig.Log.FileLineNum)
+	SetLogFuncCall(BConfig.Log.FileLineNum)
 
 	return nil
 }
