@@ -72,39 +72,40 @@ outFor:
 
 		switch kind {
 		case reflect.String:
-			v := val.String()
-			if fi != nil {
-				if fi.fieldType == TypeTimeField || fi.fieldType == TypeDateField || fi.fieldType == TypeDateTimeField {
-					var t time.Time
-					var err error
-					if len(v) >= 19 {
-						s := v[:19]
-						t, err = time.ParseInLocation(formatDateTime, s, DefaultTimeLoc)
-					} else if len(v) >= 10 {
-						s := v
-						if len(v) > 10 {
-							s = v[:10]
-						}
-						t, err = time.ParseInLocation(formatDate, s, tz)
-					} else {
-						s := v
-						if len(s) > 8 {
-							s = v[:8]
-						}
-						t, err = time.ParseInLocation(formatTime, s, tz)
-					}
-					if err == nil {
-						if fi.fieldType == TypeDateField {
-							v = t.In(tz).Format(formatDate)
-						} else if fi.fieldType == TypeDateTimeField {
-							v = t.In(tz).Format(formatDateTime)
-						} else {
-							v = t.In(tz).Format(formatTime)
-						}
-					}
-				}
-			}
-			arg = v
+			//			v := val.String()
+			//			if fi != nil {
+			//				if fi.fieldType == TypeTimeField || fi.fieldType == TypeDateField || fi.fieldType == TypeDateTimeField {
+			//					var t time.Time
+			//					var err error
+			//					if len(v) >= 19 {
+			//						s := v[:19]
+			//						t, err = time.ParseInLocation(formatDateTime, s, DefaultTimeLoc)
+			//					} else if len(v) >= 10 {
+			//						s := v
+			//						if len(v) > 10 {
+			//							s = v[:10]
+			//						}
+			//						t, err = time.ParseInLocation(formatDate, s, tz)
+			//					} else {
+			//						s := v
+			//						if len(s) > 8 {
+			//							s = v[:8]
+			//						}
+			//						t, err = time.ParseInLocation(formatTime, s, tz)
+			//					}
+			//					if err == nil {
+			//						if fi.fieldType == TypeDateField {
+			//							v = t.In(tz).Format(formatDate)
+			//						} else if fi.fieldType == TypeDateTimeField {
+			//							v = t.In(tz).Format(formatDateTime)
+			//						} else {
+			//							v = t.In(tz).Format(formatTime)
+			//						}
+			//					}
+			//				}
+			//			}
+			//			arg = v
+			arg = val.String()
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			arg = val.Int()
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
